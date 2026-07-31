@@ -1,95 +1,51 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EMBERA.APP</title>
+    <title>EMBERA APP</title>
 
-        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
-    <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; display: flex; height: 100vh; background: #121212; color: #fff; }
-        #mapa { flex: 2; height: 100%; } /* El mapa ocupa la mayor parte */
-        #panel-lateral { flex: 1; padding: 20px; overflow-y: auto; background: #1e1e1e; box-shadow: -2px 0 10px rgba(0,0,0,0.5); }
-        .seccion { background: #2a2a2a; padding: 15px; margin-bottom: 15px; border-radius: 8px; border-left: 4px solid #00adb5; }
-        h2, h3 { color: #00adb5; margin-top: 0; }
-        ul { padding-left: 20px; }
-        input, button { padding: 8px; margin-top: 5px; border-radius: 4px; border: none; }
-        button { background: #00adb5; color: white; cursor: pointer; }
-    </style>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="style.css" />
 </head>
 <body>
     <div id="mapa"></div>
 
     <div id="panel-lateral">
-        <h1 id="titulo-lugar">Cartagena de Indias</h1>
+        <h1 id="titulo-lugar">Embera App</h1>
+        <p class="subtitulo">Explora la historia y la cultura</p>
+
+        <div class="seccion" id="seccion-info">
+            <h3>🏰 Punto de Interés</h3>
+            <h4 id="nombre-sitio">Haz clic en un marcador del mapa...</h4>
+            <p id="desc-sitio">Selecciona un punto en el mapa para descubrir su historia y escucharla en voz alta.</p>
+            <button id="btn-detener-voz" style="display: none;">Detener audio 🔇</button>
+        </div>
 
         <div class="seccion">
-            <h3>📜 Historia del Lugar</h3>
-            <p id="sec-historia">Cartagena de Indias es uno de los puertos estratégicos más importantes de la historia americana. Fundada en el siglo XVI.</p>
+            <h3>📜 Historia General</h3>
+            <p id="sec-historia">Navega por el mapa para conocer puertos históricos y plazas culturales llenas de tradición.</p>
         </div>
 
         <div class="seccion">
             <h3>⚠️ A tener en cuenta</h3>
-            <p id="sec-precaucion">En las zonas turísticas es común encontrar vendedores ambulantes y raperos o trovadores callejeros. Si no deseas un servicio o producto, responde de forma amable pero firme con un "no, gracias".</p>
-        </div>
-
-        <div class="seccion">
-            <h3>🏰 Punto de Interés Especifico</h3>
-            <h4 id="nombre-sitio">Haz clic en un marcador del mapa...</h4>
-            <p id="desc-sitio">Selecciona un punto en el mapa para ver su historia detallada.</p>
+            <p id="sec-precaucion">Respeta siempre las normas locales y apoya el comercio tradicional de manera amable.</p>
         </div>
 
         <div class="seccion">
             <h3>🎵 ¿A qué suena este lugar?</h3>
-            <p>Escucha y comparte la música típica de la zona:</p>
             <ul id="lista-canciones">
-                <li>🎵 Champeta Criolla - Artista Local</li>
-                <li>🎵 Cumbia Cartagenera</li>
+                <li>🎵 Champeta y Cumbia</li>
+                <li>🎵 Trova y Música Guasca</li>
             </ul>
-            <input type="text" id="nueva-cancion" placeholder="Añade tu canción..." />
-            <button onclick="agregarCancion()">Agregar</button>
-        </div>
-
-        <div class="seccion">
-            <h3>💡 Recomendaciones Locales</h3>
-            <p id="sec-recomendacion">Desayuna en el restaurante de Doña Teresa a las orillas de la ciudad amurallada.</p>
+            <div class="input-grupo">
+                <input type="text" id="nueva-cancion" placeholder="Añade tu canción..." />
+                <button onclick="agregarCancion()">Agregar</button>
+            </div>
         </div>
     </div>
 
-    <script>
-        var map = L.map('mapa').setView([10.4229, -75.5474], 14);
-
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-            attribution: '© OpenStreetMap'
-        }).addTo(map);
-
-        var castilloMarker = L.marker([10.4224, -75.5398]).addTo(map);
-        castilloMarker.bindPopup("<b>Castillo de San Felipe de Barajas</b><br>Haz clic para más detalles.");
-
-        castilloMarker.on('click', function() {
-            document.getElementById('nombre-sitio').innerText = "Castillo de San Felipe de Barajas";
-            document.getElementById('desc-sitio').innerText = "Esta imponente fortaleza militar del siglo XVII fue erigida en la colina de San Lázaro y es considerada una obra maestra de la ingeniería militar española en las Américas.";
-        });
-
-        function agregarCancion() {
-            var input = document.getElementById('nueva-cancion');
-            var textoCancion = input.value.trim();
-            
-            if (textoCancion !== "") {
-                var ul = document.getElementById('lista-canciones');
-                var li = document.createElement('li');
-                li.innerText = "🎵 " + textoCancion;
-                ul.appendChild(li);
-                input.value = "";
-            } else {
-                alert("Por favor escribe el nombre de una canción.");
-            }
-        }
-    </script>
-
-    
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
