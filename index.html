@@ -13,17 +13,7 @@
 <body>
     <button id="btn-toggle-menu" class="btn-flotante">✖ Ocultar Menú</button>
 
-    <!-- Reproductor oculto de YouTube -->
-    <div style="position: absolute; left: -9999px; top: -9999px; width: 0; height: 0; overflow: hidden;">
-        <div id="player-oculto"></div>
-    </div>
-
-    <!-- Reproductor de Audio Nativo HTML5 -->
-    <!-- Nota: Si abres el HTML directamente desde tu PC (file:///), muchos navegadores bloquean archivos locales por seguridad. Se recomienda usar una extensión como "Live Server" en VS Code. -->
-    <audio id="audio-local" preload="auto">
-        <source src="Music/Cartagena/La_Rebelion_-_Joe_Arroyo_(mp3.pm).mp3" type="audio/mpeg">
-        Tu navegador no soporta el elemento de audio.
-    </audio>
+    <audio id="audio-local" preload="auto"></audio>
 
     <div id="mapa"></div>
 
@@ -45,7 +35,7 @@
 
         <div class="seccion">
             <h3>⚠️ Datos Clave</h3>
-            <p><strong>🕒 Hora local:</strong> <span id="info-hora" style="color: #38bdf8;">--:--:--</span></p>
+            <p><strong>🕒 Hora local:</strong> <span id="info-hora" style="color: #2E7D32;">--:--:--</span></p>
             <p><strong>🌤️ Clima:</strong> <span id="info-clima">Elige un lugar en el mapa...</span></p>
             <p><strong>📊 Contexto de la zona:</strong> <span id="info-general">Elige un lugar en el mapa...</span></p>
             <p id="sec-precaucion">Disfruta el viaje, cuida el entorno y apoya siempre con calidez el comercio local.</p>
@@ -54,18 +44,18 @@
 
         <div class="seccion">
             <h3>🎵 Sonidos de la Región</h3>
-            <p style="font-size: 0.9rem; color: #94a3b8; margin-top: -10px;">Haz clic en un ritmo local para disfrutarlo</p>
+            <p style="font-size: 0.9rem; color: #558B2F; margin-top: -10px;">Haz clic en un ritmo local para disfrutarlo</p>
             
-            <button id="btn-reproducir-musica" style="display: none; width: 100%; margin-bottom: 15px; background: #22c55e;">▶️ Reproducir/Pausar</button>
+            <button id="btn-reproducir-musica" style="display: none; width: 100%; margin-bottom: 15px; background: #558B2F;">▶️ Reproducir/Pausar</button>
             
             <ul id="lista-canciones" style="list-style-type: none; padding: 0;">
-                <li style="color: #cbd5e1;">Explora el mapa para destapar la música de cada zona...</li>
+                <li style="color: #2E7D32;">Explora el mapa para destapar la música de cada zona...</li>
             </ul>
         </div>
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="https://www.youtube.com/iframe_api"></script>
     <script src="script.js"></script>
+    <script src="https://www.youtube.com/iframe_api"></script>
 </body>
 </html>

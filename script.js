@@ -16,7 +16,10 @@ const lugares = [
         datosGenerales: "Joyita histórica de la costa colombiana y orgullosamente Patrimonio de la Humanidad.",
         canciones: [
             { nombre: "🌊 El Mapalé (Tradicional Caribe)", ytId: "PNkQlNCARTw" },
-            { nombre: "🎶 Rebelión - Joe Arroyo (Local)", tipo: "local" },
+            {
+                nombre: "🎶 Rebelión - Joe Arroyo",
+                archivo: "Music/Cartagena/La_Rebelion_-_Joe_Arroyo_(mp3.pm).mp3"
+            },
             { nombre: "🛶 El Pescador (Folclor Caribe)", ytId: "3wN5YcDTx0Y" }
         ]
     },
@@ -50,13 +53,32 @@ const lugares = [
 
 // CONFIGURACIÓN DE REPRODUCTOR DE YOUTUBE INTERNO
 let player;
+let cancionPendiente = null;
+let cancionActual = null;
+
 function onYouTubeIframeAPIReady() {
     player = new YT.Player('player-oculto', {
         height: '0',
         width: '0',
+        playerVars: {
+            playsinline: 1
+        },
         events: {
             'onReady': () => {
                 console.log("Reproductor de YouTube listo y acoplado.");
+                if (cancionPendiente) {
+                    const { cancion, elementoLi } = cancionPendiente;
+                    cancionPendiente = null;
+                    reproducirCancion(cancion, elementoLi);
+                }
+            },
+            'onError': () => {
+                if (!cancionActual || !cancionActual.url) {
+                    return;
+                }
+                btnMusica.innerText = `▶️ Abrir en YouTube: ${cancionActual.nombre}`;
+                btnMusica.style.background = '#C62828';
+                btnMusica.onclick = () => window.open(cancionActual.url, '_blank', 'noopener');
             }
         }
     });
@@ -93,7 +115,7 @@ setInterval(() => {
     elementoInfoDinamica.style.opacity = 0; 
     setTimeout(() => {
         elementoInfoDinamica.innerText = datosCuriosos[indiceDato];
-        elementoInfoDinamica.style.color = "#fbbf24"; 
+        elementoInfoDinamica.style.color = "#558B2F"; 
         elementoInfoDinamica.style.opacity = 1; 
         indiceDato = (indiceDato + 1) % datosCuriosos.length; 
     }, 500); 
@@ -151,55 +173,66 @@ lugares.forEach(lugar => {
 });
 
 function reproducirCancion(cancion, elementoLi) {
+    cancionActual = cancion;
     const todasLasCanciones = document.querySelectorAll('.cancion-item');
     todasLasCanciones.forEach(el => el.classList.remove('activa'));
     
     elementoLi.classList.add('activa');
     detenerTodaMusica();
 
-    if (cancion.tipo === 'local') {
-        audioLocal.play().then(() => {
-            btnMusica.style.display = 'block';
-            btnMusica.innerHTML = `⏸️ Pausar: ${cancion.nombre}`;
-            btnMusica.style.background = '#ef4444'; 
-        }).catch(error => {
-            console.log("Error al reproducir audio local:", error);
+    if (cancion.archivo) {
+        audioLocal.src = cancion.archivo;
+        audioLocal.load();
+        audioLocal.play().catch(error => {
+            console.warn('No se pudo reproducir el archivo local:', error);
         });
 
+        btnMusica.style.display = 'block';
+        btnMusica.innerHTML = `⏸️ Pausar: ${cancion.nombre}`;
+        btnMusica.style.background = '#C62828';
         btnMusica.onclick = () => {
             if (audioLocal.paused) {
                 audioLocal.play();
                 btnMusica.innerHTML = `⏸️ Pausar: ${cancion.nombre}`;
-                btnMusica.style.background = '#ef4444'; // Rojo al reproducir
+                btnMusica.style.background = '#C62828';
             } else {
                 audioLocal.pause();
                 btnMusica.innerHTML = `▶️ Reanudar: ${cancion.nombre}`;
-                btnMusica.style.background = '#22c55e'; // Verde al pausar
+                btnMusica.style.background = '#558B2F';
             }
         };
-    } else {
-        if (player && typeof player.loadVideoById === 'function') {
-            player.loadVideoById(cancion.ytId);
-            player.playVideo();
-        }
-
-        btnMusica.style.display = 'block';
-        btnMusica.innerHTML = `⏸️ Pausar: ${cancion.nombre}`;
-        btnMusica.style.background = '#ef4444'; 
-
-        btnMusica.onclick = () => {
-            const estado = player.getPlayerState();
-            if (estado === YT.PlayerState.PLAYING) {
-                player.pauseVideo();
-                btnMusica.innerHTML = `▶️ Reanudar: ${cancion.nombre}`;
-                btnMusica.style.background = '#22c55e'; // Cambia a verde con play
-            } else {
-                player.playVideo();
-                btnMusica.innerHTML = `⏸️ Pausar: ${cancion.nombre}`;
-                btnMusica.style.background = '#ef4444'; // Cambia a rojo con pausa
-            }
-        };
+        return;
     }
+
+    if (!player || typeof player.loadVideoById !== 'function') {
+        cancionPendiente = { cancion, elementoLi };
+        btnMusica.style.display = 'block';
+        btnMusica.innerText = 'Cargando reproductor...';
+        console.warn('El reproductor de YouTube todavía no está disponible.');
+        return;
+    }
+    player.loadVideoById(cancion.ytId);
+    player.playVideo();
+
+    btnMusica.style.display = 'block';
+    btnMusica.innerHTML = `⏸️ Pausar: ${cancion.nombre}`;
+    btnMusica.style.background = '#C62828'; 
+
+    btnMusica.onclick = () => {
+        if (!player || typeof player.getPlayerState !== 'function') {
+            return;
+        }
+        const estado = player.getPlayerState();
+        if (estado === YT.PlayerState.PLAYING) {
+            player.pauseVideo();
+            btnMusica.innerHTML = `▶️ Reanudar: ${cancion.nombre}`;
+            btnMusica.style.background = '#558B2F'; 
+        } else {
+            player.playVideo();
+            btnMusica.innerHTML = `⏸️ Pausar: ${cancion.nombre}`;
+            btnMusica.style.background = '#C62828'; 
+        }
+    };
 }
 
 // Función de voz con tono amigable
@@ -217,20 +250,7 @@ function leerEnVozAlta(texto) {
         btnDetener.style.display = 'none';
     };
 }
-    function leerEnVozAlta(texto) {
-        window.speechSynthesis.cancel();
-        const mensaje = new SpeechSynthesisUtterance(texto);
-        mensaje.lang = 'es-CO'; 
-        mensaje.rate = 0.9; 
-        mensaje.pitch = 1.05; 
 
-        window.speechSynthesis.speak(mensaje);
-        btnDetener.style.display = 'block';
-
-        mensaje.onend = () => {
-            btnDetener.style.display = 'none';
-        };
-    }
 btnDetener.addEventListener('click', () => {
     window.speechSynthesis.cancel();
     btnDetener.style.display = 'none';
