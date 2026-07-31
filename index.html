@@ -14,6 +14,7 @@
     <button id="btn-toggle-menu" class="btn-flotante">✖ Ocultar Menú</button>
 
     <audio id="audio-local" preload="auto"></audio>
+    <div id="player-oculto" style="display:none;"></div>
 
     <div id="mapa"></div>
 
@@ -46,7 +47,7 @@
             <h3>🎵 Sonidos de la Región</h3>
             <p style="font-size: 0.9rem; color: #558B2F; margin-top: -10px;">Haz clic en un ritmo local para disfrutarlo</p>
 
-            <button id="btn-reproducir-musica" style="display: none; width: 100%; margin-bottom: 15px; background: #558B2F;">▶️ Reproducir/Pausar</button>
+            <div id="reproductor-iframe-container" style="margin-bottom: 15px; display: none;"></div>
             
             <ul id="lista-canciones" style="list-style-type: none; padding: 0;">
                 <li style="color: #2E7D32;">Explora el mapa para destapar la música de cada zona...</li>

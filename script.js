@@ -15,14 +15,9 @@ const lugares = [
         clima: "Cálido y muy alegre, con unos 30°C de puro sabor caribeño.",
         datosGenerales: "Joyita histórica de la costa colombiana y orgullosamente Patrimonio de la Humanidad.",
         canciones: [
-            { nombre: "🌊 El Mapalé (Tradicional Caribe)", ytId: "PNkQlNCARTw" },
-            {
-                nombre: "🎶 Rebelión - Joe Arroyo",
-                ytId: "qSi2j6FM0dc",
-                url: "https://youtu.be/qSi2j6FM0dc?si=ugf4fwVemc_xtlKn",
-                archivo: "Music/Cartagena/La_Rebelion_-_Joe_Arroyo_(mp3.pm).mp3"
-            },
-            { nombre: "🛶 El Pescador (Folclor Caribe)", ytId: "3wN5YcDTx0Y" }
+            { nombre: "🌊 El Mapalé", ytId: "PNkQlNCARTw" },
+            { nombre: "🎶 Rebelión - El Joe Arroyo", ytId: "QUkWKXlorbU" },
+            { nombre: "🛶 El Pescador", ytId: "3wN5YcDTx0Y" }
         ]
     },
     {
@@ -53,43 +48,12 @@ const lugares = [
     }
 ];
 
-// CONFIGURACIÓN DE REPRODUCTOR DE YOUTUBE INTERNO
 let player;
-let cancionPendiente = null;
-let cancionActual = null;
 
 function onYouTubeIframeAPIReady() {
-    player = new YT.Player('player-oculto', {
-        height: '0',
-        width: '0',
-        playerVars: {
-            playsinline: 1
-        },
-        events: {
-            'onReady': () => {
-                console.log("Reproductor de YouTube listo y acoplado.");
-                if (cancionPendiente) {
-                    const { cancion, elementoLi } = cancionPendiente;
-                    cancionPendiente = null;
-                    reproducirCancion(cancion, elementoLi);
-                }
-            },
-            'onError': () => {
-                if (!cancionActual) {
-                    return;
-                }
-                if (!cancionActual.url) {
-                    return;
-                }
-                btnMusica.innerText = `▶️ Abrir en YouTube: ${cancionActual.nombre}`;
-                btnMusica.style.background = '#C62828';
-                btnMusica.onclick = () => window.open(cancionActual.url, '_blank', 'noopener');
-            }
-        }
-    });
+    console.log("API de YouTube lista.");
 }
 
-// RELOJ EN TIEMPO REAL
 function actualizarHora() {
     const elementoHora = document.getElementById('info-hora');
     const ahora = new Date();
@@ -98,7 +62,6 @@ function actualizarHora() {
 setInterval(actualizarHora, 1000); 
 actualizarHora();
 
-// MENÚ MINIMALISTA
 const panelLateral = document.getElementById('panel-lateral');
 const btnToggleMenu = document.getElementById('btn-toggle-menu');
 
@@ -107,7 +70,6 @@ btnToggleMenu.addEventListener('click', () => {
     btnToggleMenu.innerText = panelLateral.classList.contains('colapsado') ? "☰ Mostrar Menú" : "✖ Ocultar Menú";
 });
 
-// INFORMACIÓN DINÁMICA AMIGABLE
 const datosCuriosos = [
     "💡 ¿Sabías que? Cada región de nuestra patria suena diferente gracias a su geografía y su gente.",
     "🌴 Dato curioso: El Urabá antioqueño es un punto mágico donde la montaña abraza al mar Caribe.",
@@ -121,22 +83,20 @@ setInterval(() => {
     setTimeout(() => {
         elementoInfoDinamica.innerText = datosCuriosos[indiceDato];
         elementoInfoDinamica.style.color = "#558B2F"; 
-        elementoInfoDinamica.style.opacity = 1; 
+        elementoInfoDinnamica_opacity = 1; 
         indiceDato = (indiceDato + 1) % datosCuriosos.length; 
     }, 500); 
 }, 6000);
 
-// MAPA, VOZ Y MÚSICA INTERACTIVA
 const btnDetener = document.getElementById('btn-detener-voz');
-const btnMusica = document.getElementById('btn-reproducir-musica');
 const audioLocal = document.getElementById('audio-local');
 
 function detenerTodaMusica() {
-    if (player && typeof player.stopVideo === 'function') {
-        player.stopVideo();
-    }
     audioLocal.pause();
     audioLocal.currentTime = 0;
+    const container = document.getElementById('reproductor-iframe-container');
+    container.innerHTML = '';
+    container.style.display = 'none';
 }
 
 lugares.forEach(lugar => {
@@ -158,7 +118,6 @@ lugares.forEach(lugar => {
         document.getElementById('info-general').innerText = lugar.datosGenerales;
 
         detenerTodaMusica();
-        btnMusica.style.display = 'none';
 
         const listaCanciones = document.getElementById('lista-canciones');
         listaCanciones.innerHTML = ''; 
@@ -178,70 +137,26 @@ lugares.forEach(lugar => {
 });
 
 function reproducirCancion(cancion, elementoLi) {
-    cancionActual = cancion;
     const todasLasCanciones = document.querySelectorAll('.cancion-item');
     todasLasCanciones.forEach(el => el.classList.remove('activa'));
     
     elementoLi.classList.add('activa');
     detenerTodaMusica();
 
-    if (cancion.archivo) {
-        audioLocal.src = cancion.archivo;
-        audioLocal.load();
-        audioLocal.play().catch(error => {
-            console.warn('No se pudo reproducir el archivo local:', error);
-        });
-
-        btnMusica.style.display = 'block';
-        btnMusica.innerHTML = `⏸️ Pausar: ${cancion.nombre}`;
-        btnMusica.style.background = '#C62828';
-        btnMusica.onclick = () => {
-            if (audioLocal.paused) {
-                audioLocal.play();
-                btnMusica.innerHTML = `⏸️ Pausar: ${cancion.nombre}`;
-                btnMusica.style.background = '#C62828';
-            } else {
-                audioLocal.pause();
-                btnMusica.innerHTML = `▶️ Reanudar: ${cancion.nombre}`;
-                btnMusica.style.background = '#558B2F';
-            }
-        };
-        return;
-    }
-
-    if (!player || typeof player.loadVideoById !== 'function') {
-        cancionPendiente = { cancion, elementoLi };
-        btnMusica.style.display = 'block';
-        btnMusica.innerText = 'Cargando reproductor...';
-        console.warn('El reproductor de YouTube todavía no está disponible.');
-        return;
-    }
-    player.loadVideoById(cancion.ytId);
-    player.playVideo();
-
-    btnMusica.style.display = 'block';
-    btnMusica.disabled = false;
-    btnMusica.innerHTML = `⏸️ Pausar: ${cancion.nombre}`;
-    btnMusica.style.background = '#C62828'; 
-
-    btnMusica.onclick = () => {
-        if (!player || typeof player.getPlayerState !== 'function') {
-            return;
-        }
-        const estado = player.getPlayerState();
-        if (estado === YT.PlayerState.PLAYING) {
-            player.pauseVideo();
-            btnMusica.innerHTML = `▶️ Reanudar: ${cancion.nombre}`;
-            btnMusica.style.background = '#558B2F'; 
-        } else {
-            player.playVideo();
-            btnMusica.innerHTML = `⏸️ Pausar: ${cancion.nombre}`;
-            btnMusica.style.background = '#C62828'; 
-        }
-    };
+    const container = document.getElementById('reproductor-iframe-container');
+    container.style.display = 'block';
+    
+    container.innerHTML = `
+        <iframe width="100%" height="120" 
+            src="https://www.youtube.com/embed/${cancion.ytId}?autoplay=1" 
+            title="${cancion.nombre}" 
+            frameborder="0" 
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+            allowfullscreen>
+        </iframe>
+    `;
 }
 
-// Función de voz con tono amigable
 function leerEnVozAlta(texto) {
     window.speechSynthesis.cancel();
     const mensaje = new SpeechSynthesisUtterance(texto);
