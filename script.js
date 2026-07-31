@@ -18,6 +18,8 @@ const lugares = [
             { nombre: "🌊 El Mapalé (Tradicional Caribe)", ytId: "PNkQlNCARTw" },
             {
                 nombre: "🎶 Rebelión - Joe Arroyo",
+                ytId: "qSi2j6FM0dc",
+                url: "https://youtu.be/qSi2j6FM0dc?si=ugf4fwVemc_xtlKn",
                 archivo: "Music/Cartagena/La_Rebelion_-_Joe_Arroyo_(mp3.pm).mp3"
             },
             { nombre: "🛶 El Pescador (Folclor Caribe)", ytId: "3wN5YcDTx0Y" }
@@ -73,7 +75,10 @@ function onYouTubeIframeAPIReady() {
                 }
             },
             'onError': () => {
-                if (!cancionActual || !cancionActual.url) {
+                if (!cancionActual) {
+                    return;
+                }
+                if (!cancionActual.url) {
                     return;
                 }
                 btnMusica.innerText = `▶️ Abrir en YouTube: ${cancionActual.nombre}`;
@@ -215,6 +220,7 @@ function reproducirCancion(cancion, elementoLi) {
     player.playVideo();
 
     btnMusica.style.display = 'block';
+    btnMusica.disabled = false;
     btnMusica.innerHTML = `⏸️ Pausar: ${cancion.nombre}`;
     btnMusica.style.background = '#C62828'; 
 
