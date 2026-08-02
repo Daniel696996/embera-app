@@ -3,60 +3,145 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EMBERA APP</title>
+    <title>EMBERA APP - Agencia de Viajes y Turismo</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <!-- Phosphor Icons para iconografía profesional -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-    <button id="btn-toggle-menu" class="btn-flotante">✖ Ocultar Menú</button>
 
-    <audio id="audio-local" preload="auto"></audio>
-    <div id="player-oculto" style="display:none;"></div>
+    <!-- Carga diferida (preload="none") para ahorrar datos móviles -->
+    <audio id="audio-local" preload="none"></audio>
 
+    <!-- Indicador de carga (Loader) -->
+    <div id="map-loader">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Contenedor del Mapa -->
     <div id="mapa"></div>
 
+    <!-- Panel Lateral -->
     <div id="panel-lateral">
+        <button id="btn-toggle-menu" title="Ocultar o Mostrar Menú"><i class="ph ph-caret-right"></i></button>
+
+        <div class="herramientas-superiores">
+            <!-- Selector de Idioma -->
+            <div class="selector-idioma-container">
+                <label for="select-idioma" id="lbl-idioma-text"><i class="ph ph-globe"></i> Idioma:</label>
+                <select id="select-idioma" class="input-falso" style="cursor: pointer; font-weight: 700;">
+                    <option value="es">Español</option>
+                    <option value="en">English</option>
+                </select>
+            </div>
+            <!-- Botones de utilidades (Ubicación y Tema) -->
+            <div class="botones-utilidad">
+                <button id="btn-ubicacion" class="btn-utilidad" title="Mi Ubicación"><i class="ph ph-crosshair"></i></button>
+                <button id="btn-tema" class="btn-utilidad" title="Modo Oscuro"><i class="ph ph-moon"></i></button>
+            </div>
+        </div>
+
         <h1 id="titulo-lugar">Embera App</h1>
-        <p class="subtitulo">Descubramos juntos nuestra historia y cultura</p>
+        <p class="subtitulo" id="txt-subtitulo">Agencia de Viajes & Turismo</p>
 
-        <div class="seccion" id="seccion-info">
-            <h3>🏰 Punto de Interés</h3>
-            <h4 id="nombre-sitio">¡Hola! Haz clic en cualquier marcador del mapa...</h4>
-            <p id="desc-sitio">Selecciona un punto para conocer su historia y escucharla en voz alta de forma muy natural.</p>
-            <button id="btn-detener-voz" style="display: none;">Detener audio 🔇</button>
+        <!-- Acordeón 1: Punto de Interés -->
+        <div class="acordeon">
+            <div class="acordeon-cabecera" id="header-punto"><i class="ph ph-castle-turret"></i> Punto de Interés</div>
+            <div class="acordeon-contenido">
+                <h4 id="nombre-sitio">¡Hola! Haz clic en cualquier marcador...</h4>
+                <p id="desc-sitio">Selecciona un punto en el mapa para descubrir su magia, historia y sonidos.</p>
+                <div id="controles-principal" style="display: none; margin-top: 15px;">
+                    <button id="btn-voz-principal" class="btn-secundario"><i class="ph ph-speaker-high"></i> Escuchar Introducción</button>
+                </div>
+            </div>
         </div>
 
-        <div class="seccion">
-            <h3>📜 Historia General</h3>
-            <p id="sec-historia">Navega libremente por el mapa y sorpréndete con los rincones llenos de tradición de nuestra tierra.</p>
+        <!-- Acordeón 2: Historia General -->
+        <div class="acordeon" id="acordeon-historia">
+            <div class="acordeon-cabecera" id="header-historia"><i class="ph ph-scroll"></i> Historia General</div>
+            <div class="acordeon-contenido">
+                <p id="sec-historia" class="texto-resaltado-lg">Navega por el mapa para desbloquear los relatos de nuestra tierra.</p>
+                
+                <div id="controles-historia" style="display: none; margin-top: 15px;">
+                    <button id="btn-toggle-texto-historia" class="btn-texto-link">Leer más detalles ▼</button>
+                    
+                    <div id="contenedor-historia-extensa" style="display: none; margin-top: 10px;">
+                        <p id="sec-historia-extensa" class="texto-lectura-fluida"></p>
+                    </div>
+
+                    <button id="btn-voz-historia" class="btn-secundario"><i class="ph ph-speaker-high"></i> Escuchar Historia Completa</button>
+                </div>
+            </div>
         </div>
 
-        <div class="seccion">
-            <h3>⚠️ Datos Clave</h3>
-            <p><strong>🕒 Hora local:</strong> <span id="info-hora" style="color: #2E7D32;">--:--:--</span></p>
-            <p><strong>🌤️ Clima:</strong> <span id="info-clima">Elige un lugar en el mapa...</span></p>
-            <p><strong>📊 Contexto de la zona:</strong> <span id="info-general">Elige un lugar en el mapa...</span></p>
-            <p id="sec-precaucion">Disfruta el viaje, cuida el entorno y apoya siempre con calidez el comercio local.</p>
-            <p id="info-dinamica" style="font-weight: bold; margin-top: 10px; transition: opacity 0.5s ease;"></p> 
+        <!-- Acordeón 3: Datos Clave -->
+        <div class="acordeon">
+            <div class="acordeon-cabecera" id="header-datos"><i class="ph ph-warning-circle"></i> Datos Clave</div>
+            <div class="acordeon-contenido text-center">
+                <div class="dato-tarjeta">
+                    <strong id="lbl-hora"><i class="ph ph-clock"></i> Hora local:</strong> <span id="info-hora">--:--:--</span>
+                </div>
+                <div class="dato-tarjeta">
+                    <strong id="lbl-clima"><i class="ph ph-cloud-sun"></i> Clima:</strong> <span id="info-clima">Elige un lugar...</span>
+                </div>
+                <div class="dato-tarjeta">
+                    <strong id="lbl-contexto"><i class="ph ph-chart-bar"></i> Contexto:</strong> <span id="info-general">Elige un lugar...</span>
+                </div>
+                <!-- Dato Curioso Minimalista y Fluido -->
+                <div class="dato-curioso-minimal">
+                    <span class="curioso-etiqueta" id="lbl-curioso"><i class="ph ph-lightbulb"></i> Dato Curioso</span>
+                    <p id="info-curiosidad">Selecciona un destino para ver curiosidades...</p>
+                </div>
+                <p id="sec-precaucion" class="texto-resaltado-md" style="margin-top: 15px;">Disfruta el viaje, cuida el entorno y apoya siempre el comercio local.</p>
+            </div>
         </div>
 
-        <div class="seccion">
-            <h3>🎵 Sonidos de la Región</h3>
-            <p style="font-size: 0.9rem; color: #558B2F; margin-top: -10px;">Haz clic en un ritmo local para disfrutarlo</p>
+        <!-- Acordeón 4: Sonidos de la Región -->
+        <div class="acordeon">
+            <div class="acordeon-cabecera" id="header-sonidos"><i class="ph ph-music-notes"></i> Sonidos de la Región</div>
+            <div class="acordeon-contenido">
+                <p id="lbl-instruccion-sonidos" style="font-size: 1.05rem; color: #33691E; margin-top: 0; font-weight: 600;">Haz clic en una canción para reproducirla aquí mismo</p>
+                <div id="reproductor-integrado" style="margin-bottom: 12px; display: none;">
+                    <p id="info-cancion-sonando" style="font-size: 0.95rem; font-weight: bold; color: #1B5E20; margin: 0 0 5px 0;"></p>
+                    <audio id="reproductor-audio" controls style="width: 100%; height: 35px;"></audio>
+                </div>
+                <ul id="lista-canciones" style="list-style-type: none; padding: 0; margin: 0;">
+                    <li style="color: #2E7D32; font-style: italic;" id="lbl-explora-musica">Explora el mapa para destapar la música...</li>
+                </ul>
+            </div>
+        </div>
 
-            <div id="reproductor-iframe-container" style="margin-bottom: 15px; display: none;"></div>
-            
-            <ul id="lista-canciones" style="list-style-type: none; padding: 0;">
-                <li style="color: #2E7D32;">Explora el mapa para destapar la música de cada zona...</li>
-            </ul>
+        <hr class="separador">
+        <div class="seccion-mockup">
+            <h3 id="txt-portal-titulo"><i class="ph ph-airplane-tilt"></i> Portal de Viajeros & Agencias</h3>
+            <div id="auth-container">
+                <form id="form-login" class="formulario-falso">
+                    <input type="email" id="login-email" placeholder="Correo (ej: agencia@travel.com)" class="input-falso" required>
+                    <input type="password" id="login-pass" placeholder="Contraseña" class="input-falso" required>
+                    <button type="submit" id="btn-login-text" class="btn-login">Iniciar Sesión</button>
+                </form>
+                <div id="auth-mensaje" style="display: none; text-align: center; font-weight: bold; color: #1B5E20; margin-bottom: 10px;"></div>
+            </div>
+
+            <h2 class="titulo-final">Embera Travel Agency</h2>
+                    
+            <div class="info-contacto" style="line-height: 1.8;">
+                <p id="txt-sede"><i class="ph ph-map-pin"></i> Sede Principal: Medellín, Antioquia</p>
+                <p><i class="ph ph-envelope"></i> Correo: <a href="mailto:emberaagencia@gmail.com" style="color: inherit; text-decoration: none;">emberaagencia@gmail.com</a></p>
+                <p><i class="ph ph-whatsapp-logo"></i> WhatsApp: <a href="https://wa.me/573146382816" target="_blank" style="color: inherit; text-decoration: none;">+57 314 638 2816</a></p>
+                <p><i class="ph ph-phone"></i> Teléfono: <a href="tel:+573228167202" style="color: inherit; text-decoration: none;">+57 322 816 7202</a></p>
+                <p><i class="ph ph-instagram-logo"></i> Instagram: <a href="https://instagram.com/viajes_embera" target="_blank" style="color: inherit; text-decoration: none;">@viajes_embera</a></p>
+                <p><i class="ph ph-facebook-logo"></i> Facebook: <span style="color: #666; font-style: italic;">facebook.com/EmberaTravelOficial (Próximamente)</span></p>
+                <p><i class="ph ph-tiktok-logo"></i> TikTok: <a href="https://www.tiktok.com/@emberaagenciadeviajes" target="_blank" style="color: inherit; text-decoration: none;">@emberaagenciadeviajes</a></p>
+            </div>
         </div>
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="script.js"></script>
-    <script src="https://www.youtube.com/iframe_api"></script>
 </body>
 </html>
