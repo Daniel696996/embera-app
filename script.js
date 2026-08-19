@@ -513,7 +513,7 @@ let lugares = [
             ]
         },
         canciones: [
-            { nombre: "🎺 Tal Para Cual - Joe Arroyo", audioUrl: "audio/Barranquilla/Tal para cual.mp3" },
+            { nombre: "🎺 Tal Para Cual - Joe Arroyo", audioUrl: "audio/Barranquilla/Tal para Cual.mp3" },
             { nombre: "🎉 Himno Carnaval de Barranquilla", audioUrl: "audio/Barranquilla/carnaval.mp3" },
             { nombre: "🌬️ La Subienda - Gabriel Romero", audioUrl: "audio/Barranquilla/La Subienda.mp3" }
         ]
