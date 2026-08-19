@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Embera | Agency</title>
+    <!-- FAVICON -->
+    <link rel="icon" type="image/png" href="/Images/pesta.png">
+    
+    <!-- Fuentes e Iconos -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
+    <!-- Frameworks: Bootstrap 5 (CSS) -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+    <audio id="audio-local" preload="none"></audio>
+    <div id="map-loader"><div class="spinner"></div></div>
+    <div id="mapa"></div>
+
+    <!-- Modal Logout -->
+    <div id="modal-logout" class="modal-logout oculto">
+        <div class="modal-logout-content">
+            <h3>¿Cerrar sesión?</h3>
+            <p>Se perderá la sesión actual y volverás al inicio de sesión.</p>
+            <div class="modal-logout-actions">
+                <button id="btn-confirmar-logout" class="btn-login">Sí, cerrar sesión</button>
+                <button id="btn-cancelar-logout" class="btn-secundario btn-cancelar">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Panel Lateral -->
+    <div id="panel-lateral">
+        
+        <!-- BARRA DESKTOP RENOVADA -->
+        <div id="barra-toggle-desktop" title="Ocultar o Mostrar Menú">
+            <i class="ph ph-caret-right" id="icono-toggle"></i>
+        </div>
+
+        <div class="herramientas-superiores mt-2">
+            <div class="selector-idioma-container">
+                <label for="select-idioma" id="lbl-idioma-text"><i class="ph ph-globe"></i> Idioma:</label>
+                <select id="select-idioma" class="input-falso" style="cursor: pointer; font-weight: 700; width: auto; padding: 4px;">
+                    <option value="es">Español</option>
+                    <option value="en">English</option>
+                </select>
+            </div>
+            <div class="botones-utilidad">
+                <button id="btn-ubicacion" class="btn-utilidad" title="Mi Ubicación"><i class="ph ph-crosshair"></i></button>
+                <button id="btn-tema" class="btn-utilidad" title="Modo Oscuro"><i class="ph ph-moon"></i></button>
+                <button id="btn-cerrar-sesion" class="btn-utilidad" title="Cerrar sesión"><i class="ph ph-sign-out"></i></button>
+            </div>
+        </div>
+
+        <div class="logo-container">
+            <img src="Images/Titulo.png" alt="Embera Travel Agency Logo" id="logo-header">
+        </div>
+        <p class="subtitulo" id="txt-subtitulo">Tu País, Tus Historias, Tu Próximo Destino. <span id="badge-admin" style="display:none; color:#D32F2F; font-size: 0.8rem; border: 1px solid #D32F2F; padding: 2px 6px; border-radius: 12px; margin-left: 5px;">ADMINISTRADOR</span></p>
+
+        <!-- PANEL DE ADMINISTRADOR -->
+        <div class="acordeon admin-only" id="panel-admin" style="display: none; border-left-color: #D32F2F;">
+            <div class="acordeon-cabecera" style="color: #D32F2F; background: rgba(211, 47, 47, 0.1);">
+                <span><i class="ph ph-shield-check"></i> Panel de Administración</span>
+            </div>
+            <div class="acordeon-contenido">
+                <p style="font-size: 1.1rem; color: #B71C1C; font-weight: 600; margin-top: 10px;">Opciones Exclusivas</p>
+                <button class="btn-login mb-2" data-bs-toggle="modal" data-bs-target="#modalNuevoDestino" style="background: #D32F2F;"><i class="ph ph-plus-circle"></i> Agregar Nuevo Destino</button>
+                <button class="btn-login mb-2" data-bs-toggle="modal" data-bs-target="#modalEditarDestino" style="background: #C62828;"><i class="ph ph-pencil-simple"></i> Editar Información</button>
+                <button class="btn-login" data-bs-toggle="modal" data-bs-target="#modalEstadisticas" style="background: #1B5E20;"><i class="ph ph-chart-line-up"></i> Ver Estadísticas</button>
+            </div>
+        </div>
+
+<!-- Buscador y Filtros -->
+<div class="seccion-mockup" style="padding: 15px 0; margin-bottom: 10px; width: 100%; display: flex; flex-direction: column; align-items: center;">
+    
+    <!-- Contenedor del Buscador -->
+    <div class="buscador-wrapper" style="position: relative; width: 90%; max-width: 400px; margin-bottom: 15px;">
+        
+        <input type="text" id="input-buscador" placeholder="Buscar destino..." autocomplete="off" class="input-falso" style="width: 100%; padding: 12px 20px 12px 45px; border: 1.5px solid #d0e1d4; border-radius: 25px; box-sizing: border-box; outline: none; font-size: 1rem;" />
+
+        <!-- Ícono de Lupa -->
+        <i class="ph ph-magnifying-glass" style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #558B2F; font-size: 1.3rem; pointer-events: none;"></i>
+
+        <!-- Caja Flotante de Sugerencias -->
+        <div id="sugerencias-buscador" class="sugerencias-caja" style="display: none; position: absolute; top: calc(100% + 5px); width: 100%; background: white; border: 1.5px solid #d0e1d4; border-radius: 8px; z-index: 1000; max-height: 250px; overflow-y: auto; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+        </div>
+    </div>
+
+    <!-- Filtros por categoría -->
+    <div class="filtros-categorias" ...>
+    <button class="btn-filtro activo" data-categoria="todos" id="btn-filtro-todos">Todos</button>
+    <button class="btn-filtro" data-categoria="cultura" id="btn-filtro-cultura">Cultura</button>
+    <button class="btn-filtro" data-categoria="historia" id="btn-filtro-historia">Historia</button>
+    <button class="btn-filtro" data-categoria="naturaleza" id="btn-filtro-naturaleza">Naturaleza</button>
+</div>
+    
+</div>
+
+        <!-- Acordeones (Punto, Historia, Datos, Sonidos, Favoritos) -->
+        <!-- Acordeón 1: Punto de Interés -->
+        <div class="acordeon">
+            <div class="acordeon-cabecera" id="header-punto">
+                <span id="txt-header-punto-span"><i class="ph ph-castle-turret"></i> Punto de Interés</span>
+            </div>
+            <div class="acordeon-contenido">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 15px; margin-bottom: 10px;">
+                    <h4 id="nombre-sitio" style="margin: 0; font-size: 1.4rem;">¡Explora los destinos! Haz clic en un marcador.</h4>
+                    <button id="btn-favorito-sitio" title="Guardar en favoritos" style="display: none;"><i class="ph ph-heart"></i></button>
+                </div>
+                <p id="desc-sitio">Selecciona un destino en el mapa para ver su descripción, fotos y sonidos.</p>
+                
+                <div id="galeria-sitio-container" style="display: none; margin: 12px 0;">
+                    <div class="galeria-visor" style="position: relative; border-radius: 8px; overflow: hidden; height: 180px; background: #000;">
+                        <img id="galeria-imagen-activa" src="" alt="Vista del destino" style="width: 100%; height: 100%; object-fit: cover; transition: opacity 0.3s;">
+                        <button id="galeria-btn-prev" class="btn-galeria"><i class="ph ph-caret-left"></i></button>
+                        <button id="galeria-btn-next" class="btn-galeria" style="right: 5px; left: auto;"><i class="ph ph-caret-right"></i></button>
+                    </div>
+                </div>
+
+                <div id="controles-principal" style="display: none; margin-top: 15px;">
+                    <button id="btn-voz-principal" class="btn-secundario"><i class="ph ph-speaker-high"></i> Escuchar Introducción</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Acordeón 2: Historia General -->
+        <div class="acordeon" id="acordeon-historia">
+            <div class="acordeon-cabecera" id="header-historia"><span><i class="ph ph-scroll"></i> Historia General</span></div>
+            <div class="acordeon-contenido">
+                <p id="sec-historia" class="texto-resaltado-lg">Navega por el mapa para desbloquear los relatos de nuestra tierra.</p>
+                <div id="controles-historia" style="display: none; margin-top: 15px;">
+                    <button id="btn-toggle-texto-historia" class="btn-texto-link">Leer más detalles ▼</button>
+                    <div id="contenedor-historia-extensa" style="display: none; margin-top: 10px;">
+                        <p id="sec-historia-extensa" class="texto-lectura-fluida"></p>
+                    </div>
+                    <button id="btn-voz-historia" class="btn-secundario"><i class="ph ph-speaker-high"></i> Escuchar Historia Completa</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Acordeón 3: Datos Clave -->
+        <div class="acordeon">
+            <div class="acordeon-cabecera" id="header-datos"><span><i class="ph ph-warning-circle"></i> Datos Clave</span></div>
+            <div class="acordeon-contenido text-center">
+                <div class="dato-tarjeta"><strong id="lbl-hora"><i class="ph ph-clock"></i> Hora:</strong> <span id="info-hora">--:--:--</span></div>
+                <div class="dato-tarjeta"><strong id="lbl-clima"><i class="ph ph-cloud-sun"></i> Clima:</strong> <span id="info-clima">Elige un lugar...</span></div>
+                <div class="dato-tarjeta"><strong id="lbl-contexto"><i class="ph ph-chart-bar"></i> Contexto:</strong> <span id="info-general">Elige un lugar...</span></div>
+                <div class="dato-curioso-minimal">
+                    <span class="curioso-etiqueta" id="lbl-curioso"><i class="ph ph-lightbulb"></i> Dato Curioso</span>
+                    <p id="info-curiosidad">Selecciona un destino para ver curiosidades...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Acordeón 4: Sonidos -->
+        <div class="acordeon">
+            <div class="acordeon-cabecera" id="header-sonidos"><span><i class="ph ph-music-notes"></i> Sonidos</span></div>
+            <div class="acordeon-contenido">
+                <p id="lbl-instruccion-sonidos" style="font-size: 1.05rem; color: #33691E; font-weight: 600;">Haz clic en una canción para reproducirla</p>
+                <div id="reproductor-integrado" style="display: none;">
+                    <p id="info-cancion-sonando" style="font-size: 0.95rem; font-weight: bold; color: #1B5E20; margin-bottom: 5px;"></p>
+                    <audio id="reproductor-audio" controls style="width: 100%; height: 35px;"></audio>
+                </div>
+                <ul id="lista-canciones" style="list-style-type: none; padding: 0; margin: 0;">
+                    <li style="color: #2E7D32; font-style: italic;" id="lbl-explora-musica">Explora el mapa para destapar la música...</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Acordeón 5: Mis Favoritos -->
+<div class="acordeon">
+    <div class="acordeon-cabecera" id="header-favoritos">
+        <span><i class="ph ph-heart"></i> Mis Favoritos</span>
+    </div>
+    <div class="acordeon-contenido">
+        <ul id="lista-favoritos" style="list-style-type: none; padding: 0; margin: 0;">
+            <!-- Se llenará dinámicamente con JS -->
+        </ul>
+    </div>
+</div>
+
+        <!-- ================= MENÚ DE DESTINOS FAVORITOS (estilo acordeón Embera) ================= -->
+<!-- Cotizador de Viajes -->
+<div class="seccion-mockup" style="margin-top: 15px;">
+    <h3 id="titulo-cotizador-viajes"><i class="ph ph-calculator"></i> Cotizador de Viajes</h3>
+    <form id="form-cotizador" class="formulario-falso">
+        
+        <!-- Selección de Destino -->
+        <div class="mb-2">
+            <label for="cotizador-destino" class="form-label text-success fw-bold" id="lbl-cotizador-destino" style="font-size: 0.95rem;">
+                <i class="ph ph-map-pin"></i> Destino:
+            </label>
+            <!-- Cotizador de Viajes: Selección de Destino -->
+            <select id="cotizador-destino" class="input-falso" required>
+             <option value="" disabled selected>Selecciona destino...</option>    
+        <!-- Región: Bolívar -->
+            <option value="CartagenaSanFelipe" data-precio="1200000">Cartagena (Castillo San Felipe y Centro Histórico)</option>
+    
+        <!-- Región: Atlántico -->
+            <option value="BarranquillaMalecon" data-precio="950000">Barranquilla (Gran Malecón del Río)</option>
+            <option value="BarranquillaBocas" data-precio="900000">Barranquilla (Bocas de Ceniza)</option>
+    
+        <!-- Región: Boyacá -->
+            <option value="BoyacaLeyva" data-precio="800000">Boyacá (Villa de Leyva)</option>
+            <option value="BoyacaRaquira" data-precio="750000">Boyacá (Ráquira - Capital Artesanal)</option>
+    
+        <!-- Región: Magdalena -->
+            <option value="SantaMartaTayrona" data-precio="1100000">Santa Marta (Parque Tayrona)</option>
+            <option value="SantaMartaTaganga" data-precio="1050000">Santa Marta (Bahía de Taganga)</option>
+    
+        <!-- Región: Amazonas -->
+            <option value="AmazonasLeticia" data-precio="1600000">Amazonas (Leticia y Tres Fronteras)</option>
+            <option value="AmazonasTanimboca" data-precio="1750000">Amazonas (Reserva Natural Tanimboca)</option>
+           </select>
+        </div>
+
+        <!-- País de origen -->
+        <div class="mb-2">
+            <label for="cotizador-pais" class="form-label text-success fw-bold" id="lbl-cotizador-pais" style="font-size: 0.95rem;">
+                <i class="ph ph-globe-hemisphere-west"></i> País desde donde nos visitas:
+            </label>
+            <select id="cotizador-pais" class="input-falso" required>
+             <option value="co" selected>Colombia</option>
+             <option value="us">Estados Unidos</option>
+             <option value="es">España / Europa</option>
+             <option value="sa">Sudamérica</option>
+             <option value="as">Asia</option>
+</select>
+        </div>
+
+        <!-- Número de viajeros -->
+        <div class="mb-2">
+            <label for="cotizador-personas" class="form-label text-success fw-bold" id="lbl-cotizador-personas" style="font-size: 0.95rem;">
+                <i class="ph ph-users"></i> Número de viajeros:
+            </label>
+            <input type="number" id="cotizador-personas" placeholder="Ej. 2" min="1" max="15" class="input-falso" required title="Máximo 15 personas por cotización estándar">
+        </div>
+
+        <!-- Fecha -->
+        <div class="mb-2">
+            <label for="cotizador-fecha" class="form-label text-success fw-bold" id="lbl-cotizador-fecha" style="font-size: 0.95rem;">
+                <i class="ph ph-calendar"></i> Fecha del viaje:
+            </label>
+            <input type="date" id="cotizador-fecha" class="input-falso" required>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- CAJA DE VALOR ESTIMADO (NUEVO ELEMENTO)    -->
+        <!-- ========================================== -->
+        <div id="caja-estimado" class="mb-3 p-2 rounded text-center" style="display: none; background: rgba(197, 225, 165, 0.3); border: none px dashed #558B2F;">
+            <span class="text-success fw-bold" style="font-size: 0.95rem;">
+                <i class="ph ph-coins"></i> Valor Estimado Aproximado:
+            </span>
+            <br>
+            <span id="precio-estimado" style="font-size: 1.25rem; font-weight: 700; color: #1B5E20;">
+                --
+            </span>
+        </div>
+
+        <!-- Botón y Envío -->
+        <button type="submit" class="btn-login" id="btn-submit-cotizador" style="background: #2E7D32;">
+            <i class="ph ph-whatsapp-logo"></i> Consultar por WhatsApp
+        </button>
+        </form>
+        </div>
+
+            <h2 class="titulo-final">Contáctanos | Embera</h2>
+            <div class="info-contacto" style="line-height: 1.8;">
+                <!-- Sede -->
+                <p id="txt-sede"><i class="ph ph-map-pin"></i> Sede Principal: Medellín, Antioquia</p>
+                
+                <!-- Correo -->
+                <p><i class="ph ph-envelope"></i> <a href="mailto:emberaagencia@gmail.com" class="enlace-limpio">emberaagencia@gmail.com</a></p>
+                
+                <!-- Teléfono -->
+                <p><i class="ph ph-phone"></i> <a href="tel:+573228167202" class="enlace-limpio">322 816 7202</a></p>
+                
+                <!-- WhatsApp -->
+                <p><i class="ph ph-whatsapp-logo"></i> <a href="https://wa.me/573146382816" target="_blank" class="enlace-limpio">314 638 2816</a></p>
+                
+                <!-- Instagram -->
+                <p><i class="ph ph-instagram-logo"></i> <a href="https://www.instagram.com/viajes_embera" target="_blank" class="enlace-limpio">@viajes_embera</a></p>
+                
+                <!-- Facebook -->
+                <p><i class="ph ph-facebook-logo"></i> <a href="https://www.facebook.com/share/1HzHJba66j/" target="_blank" class="enlace-limpio">Facebook Embera</a></p>
+                
+                <!-- TikTok -->
+                <p><i class="ph ph-tiktok-logo"></i> <a href="https://www.tiktok.com/@emberaagenciadeviajes" target="_blank" class="enlace-limpio">@emberaagenciadeviajes</a></p>
+
+        <!-- Enlaces Legales (Ubicado correctamente DENTRO del panel lateral) -->
+               <div class="mt-3 text-center" style="border-top: 1px dashed #C5E1A5; padding-top: 15px; margin-bottom: 25px;">
+               <a href="terminos.html" class="enlace-limpio" style="color: #1B5E20; font-weight: bold; text-decoration: none;">
+               <i class="ph ph-file-text"></i> Leer Términos y Condiciones
+            </a>
+            <h4>Embera® Tu País, Tus Historias, Tu Próximo Destino.</h4>
+        </div>
+    </div> <!-- 2. Cierra el contenedor de #panel-lateral -->
+    </div>
+
+
+<!-- ================= MODALES DE ADMINISTRADOR (BOOTSTRAP) ================= -->
+    <!-- Modal Nuevo Destino -->
+    <div class="modal fade" id="modalNuevoDestino" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content style-modal-embera">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="ph ph-plus-circle"></i> Nuevo Destino</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="form-nuevo-destino">
+                        <div class="mb-3">
+                            <label class="form-label text-success fw-bold">Nombre del Sitio</label>
+                            <input id="new-dest-name" type="text" class="form-control" required placeholder="Ej. Piedra del Peñol">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-success fw-bold">Coordenadas (Lat, Lng)</label>
+                            <input id="new-dest-coords" type="text" class="form-control" required placeholder="6.220, -75.178">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-success fw-bold">Descripción Corta</label>
+                            <textarea id="new-dest-desc" class="form-control" rows="2" required></textarea>
+                        </div>
+                        <button type="submit" id="btn-save-new-dest" class="btn btn-success w-100 fw-bold">Guardar Destino</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Editar Destino -->
+    <div class="modal fade" id="modalEditarDestino" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content style-modal-embera">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="ph ph-pencil-simple"></i> Editar Destino</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <select class="form-select mb-3" id="select-editar-destino">
+                    </select>
+                    <div class="mb-3">
+                        <label class="form-label text-success fw-bold">Actualizar Historia</label>
+                        <textarea id="edit-dest-historia" class="form-control" rows="3">Historia actual del sitio...</textarea>
+                    </div>
+                    <div style="display:flex; gap:10px;">
+                        <button type="button" id="btn-update-dest" class="btn btn-warning w-100 fw-bold text-dark">Actualizar Información</button>
+                        <button type="button" id="btn-delete-dest" class="btn btn-danger w-100 fw-bold">Eliminar Destino</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Estadísticas -->
+    <div class="modal fade" id="modalEstadisticas" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content style-modal-embera">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="ph ph-chart-line-up"></i> Estadísticas de Tráfico</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <canvas id="graficoVisitas" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

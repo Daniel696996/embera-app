@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Embera | Registro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link rel="stylesheet" href="style.css" />
+    <style>
+        /* Mismos estilos base que tu login.html */
+        body { position: relative; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; background: #edf5ea; overflow: hidden; }
+        body::before { content: ""; position: fixed; inset: 0; background-image: url('Images/fondo.avif'); background-size: cover; background-position: center; filter: blur(2px) brightness(0.8); z-index: -2; }
+        .login-overlay { position: absolute; inset: 0; background: linear-gradient(135deg, rgba(240, 246, 236, 0.72), rgba(213, 230, 204, 0.45)); backdrop-filter: blur(8px); z-index: 0; }
+        .login-container { position: relative; z-index: 1; background: rgba(241, 248, 233, 0.98); padding: 40px; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); width: 90%; max-width: 400px; text-align: center; }
+        .login-container img { width: min(84%, 380px); margin: 0 auto 10px; display: block; }
+        .msg-exito { color: #1B5E20; display: none; font-weight: bold; background: #E8F5E9; padding: 10px; border-radius: 6px; margin-bottom: 15px; }
+        .msg-error { color: #D32F2F; display: none; font-weight: bold; background: #FDECEA; padding: 10px; border-radius: 6px; margin-bottom: 15px; }
+    </style>
+</head>
+<body>
+    <div class="login-overlay"></div>
+    <div class="login-container">
+        <img src="Images/Titulo.png" alt="Embera Logo">
+        <p class="subtitulo" style="margin-bottom: 25px; font-size: 1.4rem;">Crea tu cuenta de viajero</p>
+        
+        <form id="form-registro" class="formulario-falso">
+            <div id="msg-exito" class="msg-exito">¡Cuenta creada! Redirigiendo...</div>
+            <div id="msg-error" class="msg-error">El usuario ya existe.</div>
+            
+            <div style="position: relative; margin-bottom: 15px;">
+                <input type="text" id="reg-user" class="input-falso" placeholder="Nombre de usuario" required style="padding-left: 38px;">
+                <i class="ph ph-user" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #2E7D32; font-size: 1.3rem;"></i>
+            </div>
+            
+            <div style="position: relative; margin-bottom: 25px;">
+                <input type="password" id="reg-pass" class="input-falso" placeholder="Contraseña" required style="padding-left: 38px;">
+                <i class="ph ph-lock-key" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #2E7D32; font-size: 1.3rem;"></i>
+            </div>
+            
+            <button type="submit" class="btn-login" style="background: #1B5E20;"><i class="ph ph-user-plus"></i> Registrarse</button>
+        </form>
+        <div style="margin-top: 20px;">
+            <a href="login.html" style="color: #2E7D32; text-decoration: none; font-weight: bold;">¿Ya tienes cuenta? Inicia sesión aquí</a>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('form-registro').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const user = document.getElementById('reg-user').value.trim().toLowerCase();
+            const pass = document.getElementById('reg-pass').value.trim();
+            const msgError = document.getElementById('msg-error');
+            const msgExito = document.getElementById('msg-exito');
+
+            // 1. Obtener usuarios guardados o crear array vacío
+            let usuariosGuardados = JSON.parse(localStorage.getItem('embera_usuarios')) || [];
+
+            // 2. Comprobar si el usuario ya existe (incluyendo los de prueba)
+            const existe = usuariosGuardados.find(u => u.username === user) || user === 'admin' || user === 'user';
+
+            if (existe) {
+                msgError.style.display = 'block';
+                msgExito.style.display = 'none';
+            } else {
+                // 3. Guardar el nuevo usuario
+                usuariosGuardados.push({ username: user, password: pass, rol: 'user' });
+                localStorage.setItem('embera_usuarios', JSON.stringify(usuariosGuardados));
+                
+                msgError.style.display = 'none';
+                msgExito.style.display = 'block';
+                
+                // 4. Redirigir al login después de 1.5 segundos
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 1500);
+            }
+        });
+    </script>
+</body>
+</html>

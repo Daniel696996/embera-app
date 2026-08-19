@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Embera | Iniciar Sesión</title>
+    <link rel="icon" type="image/png" href="/Images/pesta.png">
+    
+    <!-- Fuentes e Iconos -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
+    <!-- Vinculamos tu CSS actual -->
+    <link rel="stylesheet" href="style.css" />
+    
+    <style>
+        /* Estilos específicos y minimalistas para centrar el login */
+        body {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background: #edf5ea;
+            overflow: hidden;
+        }
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background-image: url('Images/fondo.avif');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            filter: blur(2px) brightness(0.8) saturate(1.15);
+            transform: scale(1.08);
+            z-index: -2;
+        }
+        .login-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(240, 246, 236, 0.72), rgba(213, 230, 204, 0.45));
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 0;
+        }
+        .login-container {
+            position: relative;
+            z-index: 1;
+            background: rgba(241, 248, 233, 0.98);
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            border: 1px solid rgba(197, 225, 165, 0.8);
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+        }
+        .login-container img {
+            width: min(84%, 380px);
+            max-width: 380px;
+            height: auto;
+            display: block;
+            margin: 0 auto 10px;
+            object-fit: contain;
+        }
+        .error-msg {
+            color: #D32F2F;
+            font-size: 1.15rem;
+            margin-bottom: 15px;
+            display: none;
+            font-weight: 700;
+            background: #FDECEA;
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px solid #F5B7B1;
+        }
+        .info-demo {
+            margin-top: 25px;
+            font-size: 1.1rem;
+            color: #558B2F;
+            border-top: 1px dashed #C5E1A5;
+            padding-top: 15px;
+        }
+
+        /* ----- ESTILOS NUEVOS PARA EL MODAL "QUIENES SOMOS" ----- */
+        .modal-quienes-somos {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+        .modal-content-qs {
+            background: rgba(250, 252, 248, 0.98);
+            padding: 45px 35px;
+            border-radius: 12px;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.3);
+            border: 1px solid rgba(197, 225, 165, 0.8);
+            width: 90%;
+            max-width: 550px;
+            position: relative;
+            text-align: center;
+            animation: fadeInQs 0.3s ease-out;
+        }
+        .modal-content-qs h2 {
+            color: #1B5E20;
+            margin-bottom: 25px;
+            font-size: 2.2rem;
+        }
+        .modal-content-qs p {
+            font-size: 1.15rem;
+            line-height: 1.7;
+            color: #2e3d2a;
+            text-align: justify;
+            margin-bottom: 15px;
+        }
+        .btn-close-qs {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: transparent !important; /* Fuerza a quitar el fondo verde */
+            border: none !important;
+            box-shadow: none !important;
+            width: auto !important; /* Evita que ocupe todo el ancho */
+            padding: 0 !important;
+            font-size: 1.8rem;
+            cursor: pointer;
+            color: #558B2F !important;
+            transition: transform 0.2s ease, color 0.2s ease;
+            display: inline-block !important;
+        }
+        .btn-close-qs:hover {
+            color: #1B5E20 !important;
+            transform: scale(1.15); /* Pequeño efecto de zoom al pasar el mouse */
+        }
+        /* -------------------------------------------------------- */
+    </style>
+</head>
+<body>
+
+    <div class="login-overlay"></div>
+    
+    <div class="login-container">
+        <!-- Reusamos tu logo -->
+        <img src="Images/Titulo.png" alt="Embera Logo" style="margin-bottom: 12px;" onerror="this.src=''; this.alt='Embera Agency'; this.style.fontSize='2rem'; this.style.color='#2E7D32'; this.style.fontWeight='bold';">
+        <p class="subtitulo" style="margin-bottom: 25px; font-size: 1.4rem;">Tu País, Tus Historias, Tu Próximo Destino.</p>
+        
+        <form id="form-login" class="formulario-falso">
+            <div class="error-msg" id="error-msg">Usuario o contraseña incorrectos.</div>
+            
+            <div style="position: relative; margin-bottom: 15px;">
+                <input type="text" id="login-user" class="input-falso" placeholder="Usuario" required style="padding-left: 38px;">
+                <i class="ph ph-user" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #2E7D32; font-size: 1.3rem;"></i>
+            </div>
+            
+            <div style="position: relative; margin-bottom: 25px;">
+                <input type="password" id="login-pass" class="input-falso" placeholder="Contraseña" required style="padding-left: 38px;">
+                <i class="ph ph-lock-key" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #2E7D32; font-size: 1.3rem;"></i>
+            </div>
+            
+            <button type="submit" class="btn-login"><i class="ph ph-sign-in"></i> Ingresar</button>
+        </form>
+
+        <!-- Enlace para registrarse -->
+        <div style="margin-top: 20px;">
+            <a href="registro.html" style="color: #2E7D32; text-decoration: none; font-weight: bold;">¿No tienes cuenta? Regístrate aquí</a>
+        </div>
+
+        <!-- REEMPLAZO DE LA SECCIÓN INFERIOR -->
+        <div class="info-demo">
+            <a href="#" id="link-quienes-somos" style="color: #1B5E20; text-decoration: none; font-weight: bold; font-size: 1.15rem; transition: color 0.2s;"><i class="ph ph-info"></i> ¿Quienes somos?</a>
+            <h2 style="margin-top: 15px; font-size: 1.5rem; color: #558B2F;">Embera® Tu País, Tus Historias, Tu Próximo Destino.</h2>
+        </div>
+    </div>
+
+    <!-- MODAL "QUIENES SOMOS" -->
+    <div id="modal-quienes-somos" class="modal-quienes-somos" style="display: none;">
+        <div class="modal-content-qs">
+            <button id="close-modal-qs" class="btn-close-qs"><i class="ph ph-x"></i></button>
+            <h2>Sobre Nosotros</h2>
+            <p>
+                En EMBERA, creemos que Colombia no se conoce desde la ventana de un bus ni a través de itinerarios prefabricados. Se conoce al pisar la tierra, compartir la mesa y recorrer senderos que no aparecen en los mapas.
+            </p>
+            <p>
+                Nacimos para diseñar viajes con sentido: travesías sin afán que te conectan con la Colombia real —sus selvas, montañas, costas y, sobre todo, las comunidades que cuidan de cada territorio.
+            </p>
+            <div style="margin-top: 25px;">
+                <img src="Images/Titulo.png" alt="Embera Logo" style="width: 280px; max-width: 100%; object-fit: contain;">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('form-login').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const user = document.getElementById('login-user').value.trim().toLowerCase();
+            const pass = document.getElementById('login-pass').value.trim();
+            const errorMsg = document.getElementById('error-msg');
+            
+            // 1. Cargar usuarios dinámicos del registro
+            const usuariosGuardados = JSON.parse(localStorage.getItem('embera_usuarios')) || [];
+            const usuarioValido = usuariosGuardados.find(u => u.username === user && u.password === pass);
+
+            // 2. Validar: ¿Es un usuario dinámico o un usuario de prueba?
+            if (user === 'admin' && pass === 'admin123') {
+                sessionStorage.setItem('embera_sesion', 'admin');
+                window.location.href = 'index.html'; 
+            } else if (user === 'user' && pass === 'user123') {
+                sessionStorage.setItem('embera_sesion', 'user');
+                window.location.href = 'index.html'; 
+            } else if (usuarioValido) {
+                // Inicia sesión con el usuario creado en el registro
+                sessionStorage.setItem('embera_sesion', usuarioValido.rol);
+                window.location.href = 'index.html';
+            } else {
+                errorMsg.style.display = 'block';
+                const container = document.querySelector('.login-container');
+                container.style.transform = 'translateX(-5px)';
+                setTimeout(() => container.style.transform = 'translateX(5px)', 100);
+                setTimeout(() => container.style.transform = 'translateX(0)', 200);
+            }
+        });
+
+        // ----- LÓGICA PARA EL MODAL "QUIENES SOMOS" -----
+        const modalQs = document.getElementById('modal-quienes-somos');
+        const linkQs = document.getElementById('link-quienes-somos');
+        const closeQs = document.getElementById('close-modal-qs');
+
+        // Abrir modal
+        linkQs.addEventListener('click', function(e) {
+            e.preventDefault();
+            modalQs.style.display = 'flex';
+        });
+
+        // Cerrar modal con la "X"
+        closeQs.addEventListener('click', function() {
+            modalQs.style.display = 'none';
+        });
+
+        // Cerrar modal al hacer clic por fuera del cuadro blanco
+        window.addEventListener('click', function(e) {
+            if (e.target === modalQs) {
+                modalQs.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
