@@ -1673,3 +1673,10 @@ document.querySelectorAll('.btn-filtro').forEach(btn => {
 });
 
 actualizarListaFavoritosUI();
+
+const enlaceTerminos = document.querySelector('a[href="terminos.html"]');
+if (enlaceTerminos) {
+    enlaceTerminos.addEventListener('click', () => {
+        localStorage.setItem('embera_idioma_term', idiomaActual);
+    });
+}
